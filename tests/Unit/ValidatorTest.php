@@ -8,7 +8,7 @@ use Switon\Core\FilesystemInterface;
 use Switon\Core\LocaleInterface;
 use Switon\Core\Filesystem;
 use Switon\Core\TranslatorInterface;
-use Switon\I18n\Translator;
+use Switon\Validating\Tests\Fixtures\CatalogTranslator;
 use Switon\Validating\Attribute\Defaults;
 use Switon\Validating\Attribute\Email;
 use Switon\Validating\Attribute\EqualTo;
@@ -862,10 +862,8 @@ class ValidationValidatorTest extends TestCase
     {
         $baseDir = sys_get_temp_dir() . '/switon-validation-' . uniqid();
         $templateDir = $baseDir . '/validation';
-        $i18nDir = $baseDir . '/i18n';
 
         mkdir($templateDir, 0755, true);
-        mkdir($i18nDir, 0755, true);
 
         $globMap = [];
         $templateFiles = [];
@@ -892,14 +890,6 @@ class ValidationValidatorTest extends TestCase
             $globMap[$extraDir . '/*.php'] = $extraFiles;
         }
 
-        $translationFiles = [];
-        foreach ($translationsByLocale as $locale => $translations) {
-            $file = $i18nDir . '/' . $locale . '.php';
-            file_put_contents($file, "<?php\n\nreturn " . var_export($translations, true) . ";\n");
-            $translationFiles[] = $file;
-        }
-        $globMap[$i18nDir . '/*.php'] = $translationFiles;
-
         $filesystem = $this->createMock(Filesystem::class);
         $filesystem->method('glob')->willReturnCallback(
             static function (string $pattern) use ($globMap): array {
@@ -910,10 +900,10 @@ class ValidationValidatorTest extends TestCase
         $this->container->remove(FilesystemInterface::class);
         $this->container->set(FilesystemInterface::class, $filesystem);
         $this->container->remove(TranslatorInterface::class);
-        $this->container->set(TranslatorInterface::class, [
-            'class' => Translator::class,
-            'dirs' => [$i18nDir],
-        ]);
+        $this->container->set(TranslatorInterface::class, new CatalogTranslator(
+            $this->container->get(LocaleInterface::class),
+            $translationsByLocale,
+        ));
 
         return $this->container->make(Validator::class, array_merge([
             'dirs' => array_merge([$templateDir], $extraDirs),
