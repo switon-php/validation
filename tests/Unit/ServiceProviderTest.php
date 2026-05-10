@@ -35,6 +35,6 @@ class ServiceProviderTest extends TestCase
         $pathAlias = $container->get(PathAliasInterface::class);
         $resourceRoot = $pathAlias->get('@switon.validator.resources');
         $this->assertIsString($resourceRoot);
-        $this->assertStringEndsWith('/packages/validation/src/Templates', $resourceRoot);
+        $this->assertStringEndsWith('/src/Templates', $resourceRoot);
     }
 }
