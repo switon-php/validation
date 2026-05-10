@@ -54,6 +54,8 @@ abstract class TestCase extends BaseTestCase
         $this->container->set(LocaleInterface::class, $this->locale);
         $this->container->set(FilesystemInterface::class, $this->filesystem);
 
+        // TranslatorInterface: default StubTranslator from Switon\Testing\Container (core has no Translator class).
+
         // Create Validator instance using container with parameters for template directories
         // Container automatically handles #[Autowired] property injection
         $this->validator = $this->container->make(Validator::class, [
