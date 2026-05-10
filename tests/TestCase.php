@@ -18,6 +18,8 @@ use Switon\Validating\ValidatorInterface;
  *
  * Provides common functionality for all Validation tests using Container (as in real applications).
  * No reflection is used - all dependencies are injected through Container's autowiring.
+ *
+ * @see \Switon\Testing\Container\Container
  */
 abstract class TestCase extends BaseTestCase
 {
@@ -53,8 +55,6 @@ abstract class TestCase extends BaseTestCase
         // Register dependencies in container (replace default Filesystem with mock)
         $this->container->set(LocaleInterface::class, $this->locale);
         $this->container->set(FilesystemInterface::class, $this->filesystem);
-
-        // TranslatorInterface: default StubTranslator from Switon\Testing\Container (core has no Translator class).
 
         // Create Validator instance using container with parameters for template directories
         // Container automatically handles #[Autowired] property injection
