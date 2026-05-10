@@ -11,8 +11,7 @@ use Switon\Core\FilesystemInterface;
 use Switon\Core\Lazy;
 use Switon\Core\Json;
 use Switon\Core\LocaleInterface;
-use Switon\I18n\Exception\LocaleFileNotFoundException;
-use Switon\I18n\TranslatorInterface;
+use Switon\Core\TranslatorInterface;
 use Switon\Validating\Exception\LocaleTemplateNotFoundException;
 use Switon\Validating\Exception\ValidateFailedException;
 use function in_array;
@@ -370,7 +369,7 @@ class Validator implements ValidatorInterface
             return $label;
         }
 
-        return $this->translator->translate($label, quiet: true);
+        return $this->translator->has($label) ? $this->translator->translate($label) : $label;
     }
 
     /**
@@ -378,12 +377,11 @@ class Validator implements ValidatorInterface
      */
     protected function translateLabelKey(string $key): ?string
     {
-        try {
-            $translated = $this->translator->translate($key, quiet: true);
-        } catch (LocaleFileNotFoundException) {
+        if (!$this->translator->has($key)) {
             return null;
         }
 
+        $translated = $this->translator->translate($key);
         return $translated === $key ? null : $translated;
     }
 
